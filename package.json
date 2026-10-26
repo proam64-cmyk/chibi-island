@@ -1,0 +1,26 @@
+{
+  "name": "chibi-island-crystal-shores",
+  "private": true,
+  "version": "0.6.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:preview": "tsc --noEmit && vite build --mode preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "validate:shaders": "esbuild src/world/ocean/oceanShader.ts src/world/vegetation/windShader.ts src/render/materials/ToonMaterial.ts --bundle --external:three --format=esm --outdir=dist-shaders --outbase=src --log-level=warning && node tools/validate-shaders.mjs"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.19.3",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/three": "0.170.0",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vite-plugin-singlefile": "2.0.3",
+    "vitest": "2.1.8"
+  }
+}
