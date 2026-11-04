@@ -50,3 +50,7 @@ Los originales de Meshy no van en este repositorio: guárdalos en una carpeta `a
 
 ## Publicación
 El juego completo se publica en GitHub Pages en cada subida a `main` (tests → build → deploy). Guía: [`docs/HOSTING_GITHUB_PAGES.md`](docs/HOSTING_GITHUB_PAGES.md).
+
+## Herramienta adicional: Anime Game Prompt Studio
+
+La carpeta [`prompt-studio/`](prompt-studio/README.md) contiene una aplicación independiente (HTML/CSS/JS, sin build) para generar prompts de producción: arte anime, Meshy 3D, ingeniería de jugabilidad, seguridad para proyectos existentes y empaquetado Android. No modifica el juego ni sus dependencias. Abre `prompt-studio/index.html` o ejecuta `cd prompt-studio && npm start`.

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d18">
+  <meta name="description" content="Anime Game Prompt Studio — offline prompt production for solo anime game developers.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' http://localhost:* http://127.0.0.1:* https:; object-src 'none'; base-uri 'self'">
+  <title>Anime Game Prompt Studio</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/studio.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header id="topbar" class="topbar"></header>
+  <div class="layout">
+    <nav id="sidebar" class="sidebar" aria-label="Main navigation"></nav>
+    <main id="main" class="main" tabindex="-1">
+      <noscript><p>Anime Game Prompt Studio needs JavaScript enabled.</p></noscript>
+      <p class="muted">Loading…</p>
+    </main>
+  </div>
+  <div id="modal" class="modal" role="dialog" aria-modal="true" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/core/util.js"></script>
+  <script src="js/core/schema.js"></script>
+  <script src="js/core/storage.js"></script>
+  <script src="js/core/i18n.js"></script>
+  <script src="js/engine/context.js"></script>
+  <script src="js/engine/compiler.js"></script>
+  <script src="js/engine/image.js"></script>
+  <script src="js/engine/meshy.js"></script>
+  <script src="js/engine/gameplay.js"></script>
+  <script src="js/engine/existing.js"></script>
+  <script src="js/engine/android.js"></script>
+  <script src="js/engine/router.js"></script>
+  <script src="js/engine/categories.js"></script>
+  <script src="js/data/presets.js"></script>
+  <script src="js/data/templates.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>

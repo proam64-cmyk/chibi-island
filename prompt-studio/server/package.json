@@ -1,0 +1,11 @@
+{
+  "name": "agps-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Optional backend for Anime Game Prompt Studio: serves the app and proxies AI requests with server-side credentials.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "@anthropic-ai/sdk": "^1.5.0" },
+  "engines": { "node": ">=18" }
+}

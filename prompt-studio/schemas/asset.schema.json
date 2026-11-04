@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agps.local/schemas/asset.schema.json",
+  "title": "Asset registry entry",
+  "type": "object",
+  "required": ["id", "name", "role", "version", "approval"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string", "minLength": 1 },
+    "role": { "enum": ["character-master", "generated-image", "sprite", "background", "ui", "mesh", "material", "animation", "audio", "other"] },
+    "sourceTool": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "format": { "type": "string" },
+    "targetGame": { "type": "string" },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "approval": { "enum": ["draft", "in-review", "approved", "rejected"] },
+    "characterId": { "type": "string" },
+    "workflowStage": { "enum": ["", "concept", "master-sheet", "2d-asset", "3d-reference", "meshy-generation", "refinement", "game-integration"] },
+    "fileName": { "type": "string" },
+    "fileSize": { "type": "number" },
+    "publicUrl": { "type": "string", "pattern": "^(https://.*)?$" },
+    "thumbnail": { "type": "string", "description": "Optional small data: URL preview (images only)." },
+    "analyzed": { "type": "boolean", "description": "True only when an explicit AI analysis was run and stored." },
+    "analysis": { "type": ["object", "null"], "properties": { "model": { "type": "string" }, "at": { "type": "string" }, "text": { "type": "string" } } },
+    "notes": { "type": "string" },
+    "createdAt": { "type": "string" }
+  }
+}

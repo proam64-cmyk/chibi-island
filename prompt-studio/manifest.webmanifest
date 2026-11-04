@@ -1,0 +1,13 @@
+{
+  "name": "Anime Game Prompt Studio",
+  "short_name": "Prompt Studio",
+  "description": "Offline prompt production studio for anime game development.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d18",
+  "theme_color": "#0b0d18",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
