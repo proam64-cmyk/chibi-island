@@ -91,7 +91,7 @@
     const attrs = ' id="' + id + '" data-bind="' + esc(o.bind) + '"' + (o.dtype ? ' data-type="' + o.dtype + '"' : '') + (o.rerender ? ' data-rerender="1"' : '') + (o.readonly ? ' readonly' : '');
     let ctl = '';
     const v = o.value == null ? '' : o.value;
-    if (o.type === 'textarea') ctl = '<textarea' + attrs + ' rows="' + (o.rows || 3) + '"' + (o.placeholder ? ' placeholder="' + esc(o.placeholder) + '"' : '') + '>' + esc(v) + '</textarea>';
+    if (o.type === 'textarea') ctl = '<textarea' + attrs + (o.cls ? ' class="' + o.cls + '"' : '') + ' rows="' + (o.rows || 3) + '"' + (o.placeholder ? ' placeholder="' + esc(o.placeholder) + '"' : '') + '>' + esc(v) + '</textarea>';
     else if (o.type === 'select') ctl = '<select' + attrs + '>' + (o.options || []).map(([ov, ol]) => '<option value="' + esc(ov) + '"' + (String(ov) === String(v) ? ' selected' : '') + '>' + esc(t(ol)) + '</option>').join('') + '</select>';
     else if (o.type === 'checkbox') return '<div class="field check"><input type="checkbox"' + attrs + ' data-type="bool"' + (v ? ' checked' : '') + '><label for="' + id + '">' + esc(t(o.label)) + '</label>' + (o.help ? '<small>' + esc(t(o.help)) + '</small>' : '') + '</div>';
     else if (o.type === 'checks') {
@@ -162,7 +162,11 @@
     return viewProjects();
   }
 
+  /** Size an auto-growing text box to its content (works in browsers without CSS field-sizing). */
+  function autoGrow(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; }
+
   function afterRender() {
+    $$('textarea.autogrow').forEach(autoGrow);
     if (st.view.startsWith('wb:')) { lintEditor(st.view.slice(3)); updateRouteLine(st.view.slice(3)); }
   }
 
@@ -248,21 +252,15 @@
         '<div class="form-grid">' +
         fld({ label: 'Character ID (unique)', bind: 'c:id', value: c.id, help: 'Changing the ID updates linked assets.' }) +
         fld({ label: 'Name', bind: 'c:name', value: c.name }) +
-        fld({ label: 'Role', bind: 'c:role', value: c.role }) +
         fld({ label: 'Age category', bind: 'c:ageCategory', type: 'select', value: c.ageCategory, options: S.AGE_CATEGORIES.map((a) => [a.id, a.label]) }) +
-        fld({ label: 'Body proportions', bind: 'c:bodyProportions', value: c.bodyProportions }) +
-        fld({ label: 'Face', bind: 'c:face', value: c.face }) +
-        fld({ label: 'Hairstyle', bind: 'c:hairstyle', value: c.hairstyle }) +
         fld({ label: 'Eye colour', bind: 'c:eyeColor', value: c.eyeColor }) +
-        fld({ label: 'Colour palette (hex, comma-separated)', bind: 'c:palette', dtype: 'list', value: c.palette.join(', '), placeholder: '#D7263D, #FFFFFF' }) +
-        fld({ label: 'Art style', bind: 'c:artStyle', value: c.artStyle }) +
         '</div><div class="form-grid wide">' +
-        fld({ label: 'Costume details', bind: 'c:costume', type: 'textarea', value: c.costume }) +
-        fld({ label: 'Weapons / equipment', bind: 'c:weapons', type: 'textarea', value: c.weapons }) +
-        fld({ label: 'Abilities', bind: 'c:abilities', type: 'textarea', value: c.abilities }) +
-        fld({ label: 'Personality', bind: 'c:personality', type: 'textarea', value: c.personality }) +
-        fld({ label: 'Allowed transformations', bind: 'c:allowedTransformations', type: 'textarea', value: c.allowedTransformations }) +
-        fld({ label: 'Forbidden visual changes', bind: 'c:forbiddenChanges', type: 'textarea', value: c.forbiddenChanges }) +
+        // Descriptive fields are auto-growing text boxes so long values are never cut off.
+        [['Role', 'role'], ['Body proportions', 'bodyProportions'], ['Face', 'face'], ['Hairstyle', 'hairstyle'], ['Art style', 'artStyle']]
+          .map(([l, k]) => fld({ label: l, bind: 'c:' + k, type: 'textarea', rows: 1, cls: 'autogrow', value: c[k] })).join('') +
+        fld({ label: 'Colour palette (hex, comma-separated)', bind: 'c:palette', type: 'textarea', rows: 1, cls: 'autogrow', dtype: 'list', value: c.palette.join(', '), placeholder: '#D7263D, #FFFFFF' }) +
+        [['Costume details', 'costume'], ['Weapons / equipment', 'weapons'], ['Abilities', 'abilities'], ['Personality', 'personality'], ['Allowed transformations', 'allowedTransformations'], ['Forbidden visual changes', 'forbiddenChanges']]
+          .map(([l, k]) => fld({ label: l, bind: 'c:' + k, type: 'textarea', rows: 2, cls: 'autogrow', value: c[k] })).join('') +
         '</div>' +
         (imgAssets.length ? fld({ label: 'Reference images (from Asset Registry)', bind: 'c:referenceAssetIds', type: 'checks', value: c.referenceAssetIds, options: imgAssets.map((a) => [a.id, a.name + ' · ' + a.approval + (a.analyzed ? ' · analysed' : ' · not analysed')]), rerender: true })
           : '<p class="muted small">' + esc(t('No reference images registered. Prompts will state that no master reference exists.')) + ' ' + btn('Open Asset Registry', 'go', { arg: 'assets' }) + '</p>') +
@@ -953,7 +951,11 @@
       if (fn) { e.preventDefault(); Promise.resolve(fn(el)).catch((err) => { console.error(err); toast(err.message, 'error'); }); }
     });
     document.addEventListener('submit', (e) => e.preventDefault());
-    document.addEventListener('input', (e) => { if (e.target.type !== 'file') onInput(e); });
+    document.addEventListener('input', (e) => {
+      if (e.target.type !== 'file') onInput(e);
+      if (e.target.classList && e.target.classList.contains('autogrow')) autoGrow(e.target);
+    });
+    window.addEventListener('resize', U.debounce(() => $$('textarea.autogrow').forEach(autoGrow), 150));
     document.addEventListener('change', (e) => { if (e.target.type === 'file') onFileChange(e); else onInput(e); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !$('#modal').hidden) closeModal();

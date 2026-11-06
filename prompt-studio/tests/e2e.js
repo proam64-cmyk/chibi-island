@@ -109,6 +109,10 @@ const assert = (c, m) => { if (!c) throw new Error(m || 'assertion failed'); };
     await page.fill('#f-c-palette', '#12, notacolor');
     await page.waitForTimeout(100);
     assert((await page.textContent('#charValidation')).includes('Invalid palette'));
+    // long descriptive values are never cut off: every auto-growing box shows its full content
+    await page.fill('#f-c-face', 'sharp determined eyes, small beauty mark under the left eye, faint freckles across the nose, a thin scar on the chin');
+    const clipped = await page.$$eval('textarea.autogrow', (els) => els.filter((e) => e.scrollHeight > e.clientHeight + 2).map((e) => e.id));
+    assert(clipped.length === 0, 'clipped fields: ' + clipped.join(', '));
   });
   await step('asset import registers files without claiming analysis', async () => {
     await nav('Asset Registry');
