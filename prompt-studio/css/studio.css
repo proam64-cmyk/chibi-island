@@ -149,6 +149,20 @@ textarea.autogrow { resize: none; overflow: hidden; min-height: var(--tap); }
 .list-item.active { border-color: var(--pink); background: #ff4fa314; }
 .swatches { display: flex; gap: 3px; }
 .swatches i { width: 14px; height: 14px; border-radius: 4px; border: 1px solid #0008; display: inline-block; }
+.stage-card { padding: 0; margin-bottom: 10px; }
+.stage-card > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-height: var(--tap); padding: 10px 16px; cursor: pointer; list-style: none; border-radius: 12px; }
+.stage-card > summary::-webkit-details-marker { display: none; }
+.stage-card > summary::before { content: "▸"; color: var(--muted); transition: transform .15s ease; }
+.stage-card[open] > summary::before { transform: rotate(90deg); }
+.stage-card[open] > summary { border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+.stage-card > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.stage-card > .row:last-child { margin-bottom: 14px; }
+.stage-sum-name { font-weight: 600; }
+.stage-sum-meta { font-size: .85rem; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.stage-id { margin-top: 10px; }
+.warn-text-inline { color: var(--warn); }
+.stage-toolbar { justify-content: space-between; align-items: center; }
+.stage-toolbar p { margin: 0; }
 .lock-preview pre, pre.wrap { white-space: pre-wrap; word-break: break-word; background: #0d1020; border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: .85rem; }
 details summary { cursor: pointer; min-height: 32px; padding: 4px 0; }
 
