@@ -62,6 +62,26 @@
     });
   });
 
+  H.describe('Asset workflow status', (it) => {
+    const proj = (assets) => Object.assign(S.createProject('new'), { assets: assets.map((a) => S.createAsset(Object.assign({ name: 'x', characterId: 'C1' }, a))) });
+    const gates = (p) => S.workflowStatus(p, 'C1').filter((s) => s.gate).map((s) => s.stage.id);
+    it('reports approved, in-progress and missing stages with counts', () => {
+      const st = S.workflowStatus(proj([{ workflowStage: 'concept', approval: 'approved' }, { workflowStage: 'master-sheet' }, { workflowStage: 'master-sheet' }]), 'C1');
+      H.eq(st[0].status, 'approved'); H.eq(st[1].status, 'in-progress'); H.eq(st[1].count, 2); H.eq(st[2].status, 'missing');
+    });
+    it('warns only on the first missing stage after an unapproved one', () => {
+      H.eq(gates(proj([{ workflowStage: 'concept', approval: 'approved' }, { workflowStage: 'master-sheet', approval: 'approved' }, { workflowStage: '2d-asset', approval: 'approved' }, { workflowStage: '3d-reference', approval: 'in-review' }])).join(), 'meshy-generation');
+      H.eq(gates(proj([{ workflowStage: 'concept', approval: 'draft' }, { workflowStage: 'concept', approval: 'draft' }])).join(), 'master-sheet');
+    });
+    it('shows no warning before any work or when everything so far is approved', () => {
+      H.eq(gates(proj([])).length, 0);
+      H.eq(gates(proj([{ workflowStage: 'concept', approval: 'approved' }])).length, 0);
+    });
+    it('ignores other characters’ assets', () => {
+      H.eq(S.workflowStatus(proj([{ workflowStage: 'concept', approval: 'approved', characterId: 'OTHER' }]), 'C1')[0].status, 'missing');
+    });
+  });
+
   H.describe('Export & import', (it) => {
     it('round-trips a project through JSON', () => {
       const p = A.presets.create('anime-war-arcade');

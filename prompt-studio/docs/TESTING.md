@@ -9,12 +9,13 @@ npm run test:e2e    # Playwright/Chromium end-to-end (skips if Playwright is not
 In the app: **QA & Diagnostics → Run automated tests** runs the same unit and integration specs in the browser against an isolated in-memory store. The page also has a manual checklist.
 
 ## Latest results
-`npm test`: **97 passed, 0 failed**
+`npm test`: **101 passed, 0 failed**
 
 | Suite | Tests | Covers |
 |---|---|---|
 | Utilities | 3 | diff, template rendering, list/slug/hex helpers |
 | Schema & validation | 6 | defaults, invalid fields (name, ID, palette, FPS, URLs, links), duplicate IDs, garbage normalisation, minors |
+| Asset workflow status | 4 | stage statuses and counts, single "previous stage not approved" warning, other characters ignored |
 | Export & import | 5 | round trip, secret stripping, readable errors (invalid JSON, wrong shape, newer schema), ID collisions |
 | Storage | 1 | put/get/list/delete, copy isolation, secrets never persisted, default settings |
 | Preset profiles | 4 | both presets valid and flagged as samples, four pilots, existing mode, no character/system mixing |
