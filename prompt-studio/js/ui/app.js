@@ -12,7 +12,7 @@
   const st = (A.app = {
     projects: [], project: null, view: 'projects', selChar: null, settings: U.clone(DEFAULT_SETTINGS),
     server: { available: false, models: [], error: 'not checked yet' }, editors: {}, phases: {}, templates: [],
-    assetFilter: { role: '', approval: '' }, histFilter: '', tplSel: null, tplChar: '', tplOut: '', qa: null, navOpen: false, saveState: 'idle',
+    assetFilter: { role: '', approval: '' }, histFilter: '', tplSel: null, tplChar: '', tplOut: '', qa: null, navOpen: false, saveState: 'idle', openStages: new Set(),
   });
 
   /* ---------------- persistence ---------------- */
@@ -221,15 +221,31 @@
       '</div><p class="muted small">' + esc(t('Changes are saved automatically.')) + '</p></section>' + stagesSection();
   }
 
+  /** Short track name: imported files are named after the file, so show the file name once instead of twice. */
+  function trackLabel(a) {
+    if (!a.fileName) return a.name;
+    const base = a.fileName.replace(/\.[^.]+$/, '');
+    return !a.name || a.name === base || a.name === a.fileName ? a.fileName : a.name + ' (' + a.fileName + ')';
+  }
+
   /** Stages & audio: every stage/level/screen gets a music and ambience track from the audio assets in the registry. */
   function stagesSection() {
     const p = st.project;
     const audio = p.assets.filter((a) => a.role === 'audio');
-    const trackOpts = [['', '— none —']].concat(audio.map((a) => [a.id, a.name + (a.fileName ? ' · ' + a.fileName : '') + ' · ' + a.approval]));
+    const trackOpts = [['', '— none —']].concat(audio.map((a) => [a.id, trackLabel(a)])); // approval shows in the registry and the prompt; keep the option short for phones
     const assigned = p.stages.filter((s) => s.musicAssetId).length;
+    const audioById = (id) => audio.find((a) => a.id === id);
     const cards = p.stages.map((s, i) => {
       const r = S.validateStage(s, p);
-      return '<fieldset class="panel inner stage-card"><legend>' + esc(s.name || t('Stage') + ' ' + (i + 1)) + ' <small class="muted">' + esc(s.id) + '</small></legend>' +
+      const music = audioById(s.musicAssetId);
+      // Collapsed by default; stages with errors, and ones the user opened, stay open across re-renders.
+      const open = r.errors.length || st.openStages.has(s.id);
+      const summary = '<span class="stage-sum-name">' + esc(s.name || t('Stage') + ' ' + (i + 1)) + '</span>' +
+        '<span class="stage-sum-meta">' + esc(t((S.STAGE_KINDS.find((k) => k.id === s.kind) || { label: s.kind }).label)) + ' · ' +
+        (music ? '<span class="ok-text">♪ ' + esc(trackLabel(music)) + '</span>' : '<span class="warn-text-inline">⚠ ' + esc(t('No music yet')) + '</span>') +
+        (r.errors.length ? ' · <span class="err-text">' + esc(t('needs fixing')) + '</span>' : '') + '</span>';
+      return '<details class="panel inner stage-card" data-stage="' + esc(s.id) + '"' + (open ? ' open' : '') + '><summary>' + summary + '</summary>' +
+        '<p class="muted small stage-id">' + esc(s.id) + '</p>' +
         msgList(r.errors, 'error') + (r.warnings.length ? '<p class="warn-text small">' + esc(r.warnings.map(t).join(' ')) + '</p>' : '') +
         '<div class="form-grid">' +
         fld({ label: 'Stage name', bind: 'sg:' + i + '.name', value: s.name }) +
@@ -238,11 +254,13 @@
         fld({ label: 'Ambience track', bind: 'sg:' + i + '.ambienceAssetId', type: 'select', value: s.ambienceAssetId, options: trackOpts, rerender: true }) +
         '</div>' + fld({ label: 'Loop the music', bind: 'sg:' + i + '.loop', type: 'checkbox', value: s.loop }) +
         fld({ label: 'Audio notes (mood, cues, transitions)', bind: 'sg:' + i + '.notes', type: 'textarea', rows: 1, cls: 'autogrow', value: s.notes }) +
-        '<div class="row">' + btn('Remove stage', 'removeStage', { arg: i, cls: 'danger small' }) + '</div></fieldset>';
+        '<div class="row">' + btn('Remove stage', 'removeStage', { arg: i, cls: 'danger small' }) + '</div></details>';
     }).join('');
+    const allOpen = p.stages.length && p.stages.every((s) => st.openStages.has(s.id));
     return '<section class="panel" id="stages"><h2>' + esc(t('Stages & audio')) + '</h2>' +
       '<p class="muted small">' + esc(t('List every stage, level or screen and pick its music and ambience from the audio files in the Asset Registry. Gameplay prompts (Audio integration) then tell the coding assistant exactly which track plays where.')) + '</p>' +
-      (p.stages.length ? '<p class="small">' + esc(t('Music assigned')) + ': <b>' + assigned + ' / ' + p.stages.length + '</b></p>' : '') +
+      (p.stages.length ? '<div class="row stage-toolbar"><p class="small">' + esc(t('Music assigned')) + ': <b>' + assigned + ' / ' + p.stages.length + '</b></p>' +
+        btn(allOpen ? 'Collapse all' : 'Expand all', 'toggleAllStages', { cls: 'small' }) + '</div>' : '') +
       (audio.length ? '' : '<p class="banner">' + esc(t('No audio assets yet. Import your music files in the Asset Registry (they get the role "audio"), then assign them here.')) + ' ' + btn('Open Asset Registry', 'go', { arg: 'assets' }) + '</p>') +
       cards + '<div class="row">' + btn('+ Add stage', 'addStage', { cls: 'primary' }) + '</div></section>';
   }
@@ -550,8 +568,14 @@
     },
     addStage() {
       const s = S.createStage({ name: t('Stage') + ' ' + (st.project.stages.length + 1) });
-      st.project.stages.push(s); touch(); render();
+      st.project.stages.push(s); st.openStages.add(s.id); touch(); render();
       const f = document.getElementById('f-sg-' + (st.project.stages.length - 1) + '-name'); if (f) { f.focus(); f.select(); }
+    },
+    toggleAllStages() {
+      const ids = st.project.stages.map((s) => s.id);
+      const allOpen = ids.every((id) => st.openStages.has(id));
+      ids.forEach((id) => (allOpen ? st.openStages.delete(id) : st.openStages.add(id)));
+      render();
     },
     removeStage(el) { st.project.stages.splice(+el.dataset.arg, 1); touch(); render(); const sec = $('#stages'); if (sec) sec.scrollIntoView({ block: 'start' }); },
     analyzeAsset(el) { aiAnalyze(el.dataset.arg); },
@@ -995,6 +1019,13 @@
       if (fn) { e.preventDefault(); Promise.resolve(fn(el)).catch((err) => { console.error(err); toast(err.message, 'error'); }); }
     });
     document.addEventListener('submit', (e) => e.preventDefault());
+    // Remember which stage cards are open so re-renders (e.g. picking a track) keep them open.
+    document.addEventListener('toggle', (e) => {
+      const d = e.target;
+      if (!d.classList || !d.classList.contains('stage-card')) return;
+      if (d.open) { st.openStages.add(d.dataset.stage); $$('textarea.autogrow', d).forEach(autoGrow); }
+      else st.openStages.delete(d.dataset.stage);
+    }, true);
     document.addEventListener('input', (e) => {
       if (e.target.type !== 'file') onInput(e);
       if (e.target.classList && e.target.classList.contains('autogrow')) autoGrow(e.target);
