@@ -319,14 +319,8 @@
   function viewWorkflow() {
     const p = st.project;
     const rows = p.characters.map((c) => {
-      let prevOk = true;
-      const cells = S.WORKFLOW_STAGES.map((s) => {
-        const as = p.assets.filter((a) => a.characterId === c.id && a.workflowStage === s.id);
-        const approved = as.some((a) => a.approval === 'approved');
-        const status = approved ? 'approved' : as.length ? 'in-progress' : 'missing';
-        const gate = !prevOk && status === 'missing';
-        prevOk = approved;
-        return '<td class="stage ' + status + '"><div class="stage-status">' + esc(t(status === 'in-progress' ? 'in progress' : status)) + (as.length ? ' (' + as.length + ')' : '') + '</div>' + (gate ? '<small class="warn-text">' + esc(t('previous stage not approved')) + '</small>' : '') +
+      const cells = S.workflowStatus(p, c.id).map(({ stage: s, status, count, gate }) => {
+        return '<td class="stage ' + status + '"><div class="stage-status">' + esc(t(status === 'in-progress' ? 'in progress' : status)) + (count ? ' (' + count + ')' : '') + '</div>' + (gate ? '<small class="warn-text">' + esc(t('previous stage not approved')) + '</small>' : '') +
           '<button class="btn small" data-action="stagePrompt" data-arg="' + esc(c.id + '|' + s.id) + '">' + esc(t('Prompt')) + '</button></td>';
       }).join('');
       return '<tr><th scope="row">' + esc(c.name) + '<br><small>' + esc(c.id) + '</small></th>' + cells + '</tr>';

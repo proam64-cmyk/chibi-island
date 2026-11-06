@@ -34,7 +34,7 @@ Requirements: Node.js 18 or newer for the server and tests. The app itself is pl
 ### Tests
 ```bash
 cd prompt-studio
-npm test           # 97 unit, integration and server tests (Node, no network, no key)
+npm test           # 101 unit, integration and server tests (Node, no network, no key)
 npm run test:e2e   # 17 browser end-to-end checks (needs Playwright + Chromium installed)
 ```
 The same unit suite also runs inside the app: **QA & Diagnostics → Run automated tests**. It uses an isolated in-memory store.

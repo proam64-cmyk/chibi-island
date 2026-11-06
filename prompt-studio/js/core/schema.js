@@ -60,6 +60,24 @@
     { id: 'game-integration', label: 'Game integration' },
   ];
 
+  /**
+   * Per-stage pipeline status for one character: approved / in-progress / missing.
+   * `gate` can only be set on the first missing stage (the next one to work on), and only when the
+   * stage before it has no approved asset, so "previous stage not approved" appears at most once.
+   */
+  S.workflowStatus = function (project, characterId) {
+    let prevApproved = true, gateShown = false;
+    return S.WORKFLOW_STAGES.map((stage) => {
+      const assets = (project.assets || []).filter((a) => a.characterId === characterId && a.workflowStage === stage.id);
+      const approved = assets.some((a) => a.approval === 'approved');
+      const status = approved ? 'approved' : assets.length ? 'in-progress' : 'missing';
+      const gate = !gateShown && !prevApproved && status === 'missing';
+      if (status === 'missing') gateShown = true; // later stages are not the next step, so never warn there
+      prevApproved = approved;
+      return { stage, status, count: assets.length, gate };
+    });
+  };
+
   S.engine = (id) => S.ENGINES.find((e) => e.id === id) || S.ENGINES[S.ENGINES.length - 1];
   S.ageCategory = (id) => S.AGE_CATEGORIES.find((a) => a.id === id) || S.AGE_CATEGORIES[0];
   S.isMinor = (ch) => !!(ch && S.ageCategory(ch.ageCategory).minor);
