@@ -43,6 +43,16 @@
           { id: 'AWA-MIO', name: 'Mio Arakawa', role: 'Engineer / support pilot', ageCategory: 'young-adult', bodyProportions: 'petite, 6.5 heads, 155 cm', face: 'round cheerful face, freckles', hairstyle: 'short wavy honey-blonde bob with goggles on head', eyeColor: 'green', costume: 'yellow-and-olive mechanic flight suit with many pockets, tool belt, oversized work gloves', weapons: 'spacecraft "Honeycomb" (hexagonal support ship deploying drones)', abilities: 'Honeycomb homing drones; repairs allies', palette: ['#F4C430', '#556B2F', '#FFF8DC', '#3B2F2F'], allowedTransformations: 'goggles worn over eyes in cockpit', artStyle: 'modern anime, clean lineart, cel shading', personality: 'cheerful inventor, talks fast', forbiddenChanges: 'always goggles, freckles and tool belt; hair stays short' },
           { id: 'AWA-SORA', name: 'Sora Valen', role: 'Heavy gunner pilot', ageCategory: 'adult', bodyProportions: 'muscular, broad shoulders, 7.5 heads, 188 cm', face: 'scar across right eyebrow, confident grin', hairstyle: 'spiky black hair with purple tips, undercut', eyeColor: 'violet', costume: 'black heavy flight armour with purple accents, shoulder plates', weapons: 'spacecraft "Nightbreaker" (bulky missile gunship)', abilities: 'Nightbreaker Barrage missile volley', palette: ['#2E1A47', '#8E44AD', '#111111', '#B0B0B0'], allowedTransformations: 'armour damage states after boss fights', artStyle: 'modern anime, clean lineart, cel shading', personality: 'loud, loyal, secretly gentle', forbiddenChanges: 'keep eyebrow scar, purple hair tips and shoulder plates' },
         ],
+        // No audio files ship with the sample, so no tracks are assigned yet.
+        stages: [
+          { id: 'AWA-STG-TITLE', name: 'Title screen', kind: 'menu', notes: 'Main theme, energetic J-rock intro; loops under the menu.' },
+          { id: 'AWA-STG-01', name: 'Stage 1 — Tsukuyomi Orbit', kind: 'stage', notes: 'Upbeat synthwave, ~140 BPM.' },
+          { id: 'AWA-STG-02', name: 'Stage 2 — Asteroid Belt', kind: 'stage', notes: 'Driving, tense; heavier drums.' },
+          { id: 'AWA-STG-03', name: 'Stage 3 — Nebula Clouds', kind: 'stage', notes: 'Dreamy pads over a fast beat.' },
+          { id: 'AWA-STG-04', name: 'Stage 4 — Derelict Battleship', kind: 'stage', notes: 'Dark, industrial; distant alarms in the ambience.' },
+          { id: 'AWA-STG-BOSS', name: 'Boss — Hollow Armada Mothership', kind: 'boss', notes: 'Boss theme; intensifies at each phase change.' },
+          { id: 'AWA-STG-STORY', name: 'Story panels', kind: 'story', notes: 'Soft piano/strings; never louder than dialogue.' },
+        ],
         existing: {},
       }),
     },
@@ -89,6 +99,15 @@
           versionControl: 'git',
           currentVersion: '0.4.2',
         },
+        // Sample only: register the game's real music files in the Asset Registry, then assign them per stage.
+        stages: [
+          { id: 'KDM-STG-MENU', name: 'Main menu', kind: 'menu', notes: 'Gentle acoustic theme.' },
+          { id: 'KDM-STG-R1', name: 'Realm 1 — Mossy Hollows', kind: 'stage', notes: 'Light woodwinds; birdsong ambience.' },
+          { id: 'KDM-STG-R2', name: 'Realm 2 — Lantern Canopy', kind: 'stage', notes: 'Warm strings; rustling leaves.' },
+          { id: 'KDM-STG-R3', name: 'Realm 3 — Misty Marsh', kind: 'stage', notes: 'Sparse, misty; frogs and water drips.' },
+          { id: 'KDM-STG-R4', name: 'Realm 4 — Ashen Heartwood', kind: 'stage', notes: 'Melancholic; wind through dead branches.' },
+          { id: 'KDM-STG-BOSS', name: 'Final boss — Ash Moth Matriarch', kind: 'boss', notes: 'Three-phase boss theme matching the boss phases.' },
+        ],
         characters: [
           { id: 'KDM-KODAMA', name: 'Kodama', role: 'Protagonist — wooden forest spirit', ageCategory: 'ageless-spirit', bodyProportions: 'small, 3 heads tall chibi-like proportions, 60 cm; grows to 4 heads at final stage', face: 'smooth carved-wood face mask with two round glowing eye holes, no mouth', hairstyle: 'no hair; three young leaf sprouts on top of the head', eyeColor: 'soft glowing jade green', costume: 'body of pale birch wood with visible grain, moss scarf, tiny bark bracers', weapons: 'none — uses wind', abilities: 'gust dash, updraft glide, leaf-sail double jump, root grapple', palette: ['#E8DCC4', '#7A9E3F', '#4E6B2A', '#A7F3D0', '#5C4033'], allowedTransformations: 'growth stages (sapling → young tree spirit) adding more leaves and slightly longer limbs', artStyle: 'soft painterly anime, warm light', personality: 'curious, quiet, brave', forbiddenChanges: 'no mouth, no human hair, no clothing beyond moss scarf and bracers; keep glowing jade eyes and leaf sprouts' },
           { id: 'KDM-ELDER', name: 'Grandmother Hinoki', role: 'The Ancestral Tree (guide NPC)', ageCategory: 'elder', bodyProportions: 'colossal tree with a serene face formed in the bark', face: 'closed eyes, gentle expression in bark', hairstyle: 'canopy of gold-green leaves', eyeColor: 'amber light when eyes open', costume: 'shimenawa rope with paper charms around the trunk', weapons: 'none', palette: ['#6B4F2A', '#C9B458', '#3E5C2F'], allowedTransformations: 'blighted state (grey-purple patches) receding as roots heal', artStyle: 'soft painterly anime', forbiddenChanges: 'never a humanoid body; face only in the bark' },

@@ -24,6 +24,7 @@
       ['Difficulty', p.difficulty], ['Audio', p.audio],
     ];
     extra.forEach(([k, v]) => { if (U.has(v)) L.push(k + ': ' + v); });
+    if ((project.stages || []).length) L.push('Stages (' + project.stages.length + '): ' + project.stages.map((s) => s.name).filter(Boolean).join(', '));
     if (project.mode === 'existing') L.push('Project status: EXISTING GAME — changes must preserve current working functionality.');
     if (project.isSample) L.push('Note: this is a sample studio profile; no real source files are attached unless listed below.');
     return L;

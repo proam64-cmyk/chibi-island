@@ -148,13 +148,13 @@
       acceptance: ['Script validator finds no dangling node references.', 'All scenes skippable without breaking flags.'],
       regression: ['Automated playthrough of the script graph visiting every node.'] },
     { id: 'audio', label: 'Audio integration',
-      functional: () => ['Audio manager with buses (music, sfx, voice, ui) and volume settings persisted.', 'Music cross-fades between scenes; sfx with per-sound concurrency limits.', 'Mobile: audio unlocked on first user gesture (browser autoplay policies).'],
+      functional: (c) => ['Audio manager with buses (music, sfx, voice, ui) and volume settings persisted.', 'Music cross-fades between scenes; sfx with per-sound concurrency limits.', 'Mobile: audio unlocked on first user gesture (browser autoplay policies).'].concat(G.stageAudioLines(c.project)),
       constraints: ['Compressed formats (OGG/Opus or AAC/M4A for Safari/iOS); preload only what the scene needs.'],
       deps: ['Settings', 'Asset loader'],
       edge: ['App backgrounded → pause audio; resume on return.', 'Hundreds of hit sounds per second in bullet hell.'],
       failures: ['No sound on Android until a tap (expected) without UI hint.'],
-      acceptance: ['Volume settings persist and apply immediately.', 'Audio pauses when the app goes to background.'],
-      regression: ['Manual audio checklist per release.'] },
+      acceptance: (c) => ['Volume settings persist and apply immediately.', 'Audio pauses when the app goes to background.'].concat((c.project.stages || []).length ? ['Entering each stage in the stage audio map starts its assigned music (and ambience), and leaving it cross-fades out.'] : []),
+      regression: (c) => ['Manual audio checklist per release.'].concat((c.project.stages || []).length ? ['Automated walk through every stage asserting the active music/ambience asset IDs match the stage audio map.'] : []) },
     { id: 'framerate', label: 'Frame-rate independence',
       functional: () => ['Fixed-timestep simulation with render interpolation.', { code: fixedStep, lang: 'js' }, 'All movement uses dt from the fixed step; timers in seconds, not frames (except deliberate frame data for fighting games).'],
       constraints: ['Clamp the real delta (e.g. 250 ms) to avoid spiral of death after tab switches.'],
@@ -199,8 +199,22 @@
   };
 
   function ctxOf(project) {
-    return { p: project.profile, genre: project.profile.genre, render: project.profile.renderMode };
+    return { p: project.profile, genre: project.profile.genre, render: project.profile.renderMode, project };
   }
+
+  /** Stage → track lines for the audio subsystem. Asset IDs are canonical; file contents were never analysed. */
+  G.stageAudioLines = function (project) {
+    const rows = A.schema.stageAudio(project || {});
+    if (!rows.length) return [];
+    const kind = (id) => (A.schema.STAGE_KINDS.find((k) => k.id === id) || { label: id }).label.toLowerCase();
+    const track = (a) => a.id + ' "' + a.name + '"' + (a.fileName ? ' (file ' + a.fileName + (a.format ? ', ' + a.format : '') + ')' : a.format ? ' (' + a.format + ')' : '') + (a.approval !== 'approved' ? ' [' + a.approval + ']' : '');
+    const lines = ['Stage audio map (from the studio project; use these asset IDs to load tracks through the existing asset system — track lengths and loop points were not analysed, so read them from the files):'];
+    rows.forEach(({ stage, music, ambience }) => {
+      lines.push('Stage audio — ' + stage.name + ' [' + stage.id + ', ' + kind(stage.kind) + ']: music ' + (music ? track(music) + (stage.loop ? ', looping' : ', plays once') : 'NOT ASSIGNED YET — keep the stage silent (no placeholder file, no invented track) and log a warning') +
+        (ambience ? '; ambience ' + track(ambience) : '') + (stage.notes ? '; notes: ' + stage.notes : ''));
+    });
+    return lines;
+  };
 
   G.build = function (project, options) {
     const o = Object.assign({ tool: 'claude', genre: project.profile.genre, subsystems: null }, options || {});

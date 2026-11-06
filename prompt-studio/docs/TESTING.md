@@ -9,13 +9,14 @@ npm run test:e2e    # Playwright/Chromium end-to-end (skips if Playwright is not
 In the app: **QA & Diagnostics → Run automated tests** runs the same unit and integration specs in the browser against an isolated in-memory store. The page also has a manual checklist.
 
 ## Latest results
-`npm test`: **101 passed, 0 failed**
+`npm test`: **110 passed, 0 failed**
 
 | Suite | Tests | Covers |
 |---|---|---|
 | Utilities | 3 | diff, template rendering, list/slug/hex helpers |
 | Schema & validation | 6 | defaults, invalid fields (name, ID, palette, FPS, URLs, links), duplicate IDs, garbage normalisation, minors |
 | Asset workflow status | 4 | stage statuses and counts, single "previous stage not approved" warning, other characters ignored |
+| Stages & audio | 6 | stage normalisation, audio-only tracks, missing-music warnings, unknown/non-audio/duplicate errors, presets without invented tracks, export round trip |
 | Export & import | 5 | round trip, secret stripping, readable errors (invalid JSON, wrong shape, newer schema), ID collisions |
 | Storage | 1 | put/get/list/delete, copy isolation, secrets never persisted, default settings |
 | Preset profiles | 4 | both presets valid and flagged as samples, four pilots, existing mode, no character/system mixing |
@@ -24,15 +25,15 @@ In the app: **QA & Diagnostics → Run automated tests** runs the same unit and 
 | Image provider adapters | 9 | Midjourney/ChatGPT/Gemini/Leonardo/custom syntax, `--tile`, parallax layers, required character, clean art |
 | Character continuity & references | 6 | continuity lock in every provider, missing/unanalysed/analysed references, Midjourney URLs, minors |
 | Meshy 3D Studio | 6 | polygon budgets, all 10 steps + checklists, 600-character prompt limit, multi-view references, custom targets, static props |
-| Gameplay engineering | 4 | requirement categories, intercept code, genre defaults, preservation constraints, per-tool framing |
+| Gameplay engineering | 6 | requirement categories, intercept code, genre defaults, per-stage audio map (assigned/unassigned tracks), no map without stages, preservation constraints, per-tool framing |
 | Existing project safety | 4 | full package, no-manifest honesty, audit-only, non-git backups |
 | Android packaging | 7 | Capacitor commands, Godot/Unity native plans, WebGL checks, studio target, ID/version validation |
 | Compiler actions | 6 | phase splitting, expand, refine, correct (destructive/secret/false-analysis/MJ syntax/APK claims), model-claim lint, `--ar` fix |
 | Model routing | 12 | LOCAL, backend-unavailable fallback, ECONOMY, INTELLIGENT tiers, MAX → Opus 5.5, routine non-escalation, missing Opus, manual selection, cost, system prompt, unreachable status |
 | Server (optional backend) | 14 | static serving, traversal blocking, no-credential behaviour, key never returned, request parameters (adaptive thinking, effort, refusal fallback), allowlist, CORS, image validation, rate limit, passphrase, refusal → 422, upstream error mapping |
-| JSON Schemas | 4 | schema enums in sync with the runtime, export format |
+| JSON Schemas | 5 | schema enums (incl. stage kinds) in sync with the runtime, export format |
 
-`npm run test:e2e`: **18 passed, 0 failed**. The app loads with no page errors. The run covers: loading a preset; generating a Midjourney master sheet; Correct redacting a secret; compare; the LOCAL fallback explanation for AI; three coordinated phases; the Android plan; persistence after reload (IndexedDB); history restore; palette validation; file import without analysis claims plus the analysis-unavailable dialog; JSON export and re-import; the in-app QA suite passing in Chromium; the Spanish UI; mobile at 360 px (8 views, no horizontal overflow, working menu, touch targets ≥ 34 px); and the AI flow against the server with a mocked Claude client (MAXIMUM QUALITY → Opus 5.5, nothing sent before confirmation, served model labelled).
+`npm run test:e2e`: **19 passed, 0 failed**. The app loads with no page errors. The run covers: loading a preset; generating a Midjourney master sheet; Correct redacting a secret; compare; the LOCAL fallback explanation for AI; three coordinated phases; the Android plan; persistence after reload (IndexedDB); history restore; palette validation; file import without analysis claims plus the analysis-unavailable dialog; importing a music file, assigning it to a stage and seeing it in the Audio integration prompt; JSON export and re-import; the in-app QA suite passing in Chromium; the Spanish UI; mobile at 360 px (8 views, no horizontal overflow, working menu, touch targets ≥ 34 px); and the AI flow against the server with a mocked Claude client (MAXIMUM QUALITY → Opus 5.5, nothing sent before confirmation, served model labelled).
 
 `android/scripts/prepare-www.mjs` was run: it copies 25 files and its secret scan passes. It correctly failed while test fixtures still contained key-shaped literals; those fixtures are now built at runtime.
 

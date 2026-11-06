@@ -161,6 +161,21 @@
       const t = gen('gameplay', A.presets.create('kodama-last-branch'), { genre: 'platformer' });
       H.includes(t, 'coyote time');
     });
+    it('the audio subsystem includes the per-stage audio map', () => {
+      const p = awa();
+      p.assets.push(S.createAsset({ id: 'AUD-ORBIT', name: 'Orbit theme', role: 'audio', fileName: 'orbit_theme.ogg', format: 'OGG', approval: 'approved' }), S.createAsset({ id: 'AUD-ALARM', name: 'Alarms', role: 'audio', fileName: 'alarms.ogg' }));
+      p.stages[1].musicAssetId = 'AUD-ORBIT'; p.stages[4].ambienceAssetId = 'AUD-ALARM'; p.stages[5].loop = false;
+      const t = gen('gameplay', p, { subsystems: ['audio'] });
+      H.includes(t, 'Stage audio map'); H.includes(t, 'Stage 1 — Tsukuyomi Orbit [AWA-STG-01, stage / level]: music AUD-ORBIT "Orbit theme" (file orbit_theme.ogg, OGG), looping');
+      H.includes(t, 'ambience AUD-ALARM "Alarms" (file alarms.ogg) [draft]');
+      H.includes(t, 'Title screen [AWA-STG-TITLE, menu / title]: music NOT ASSIGNED YET');
+      H.includes(t, 'were not analysed'); H.includes(t, 'Entering each stage in the stage audio map');
+    });
+    it('projects without stages keep the plain audio subsystem', () => {
+      const p = awa(); p.stages = [];
+      const t = gen('gameplay', p, { subsystems: ['audio'] });
+      H.excludes(t, 'Stage audio map'); H.excludes(t, 'Stages (');
+    });
     it('existing projects get preservation constraints', () => {
       const t = gen('gameplay', kdm(), {});
       H.includes(t, 'Must keep working: Gust dash ability'); H.includes(t, 'never rewrite working modules');

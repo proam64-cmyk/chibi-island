@@ -82,6 +82,46 @@
     });
   });
 
+  H.describe('Stages & audio', (it) => {
+    const withAudio = () => {
+      const p = S.createProject('new');
+      p.assets.push(S.createAsset({ id: 'AUD-1', name: 'Orbit theme', role: 'audio', fileName: 'orbit.ogg', format: 'OGG' }), S.createAsset({ id: 'IMG-1', name: 'Concept', role: 'generated-image' }));
+      return p;
+    };
+    it('normalises stages from untrusted input', () => {
+      const p = S.normalizeProject({ profile: {}, stages: [{ name: 'A', kind: 'weird', loop: 'yes' }, null, 'x'] });
+      H.eq(p.stages.length, 1); H.eq(p.stages[0].kind, 'other'); H.eq(p.stages[0].loop, true); H.assert(/^STG-/.test(p.stages[0].id));
+    });
+    it('accepts an audio track and warns about stages without music', () => {
+      const p = withAudio();
+      p.stages.push(S.createStage({ name: 'Orbit', musicAssetId: 'AUD-1' }), S.createStage({ name: 'Boss', kind: 'boss' }));
+      const v = S.validateProject(p);
+      H.eq(v.errors.length, 0); H.eq(v.warnings.filter((w) => /No music track/.test(w)).join(), 'Boss: No music track assigned yet.');
+    });
+    it('rejects unknown and non-audio tracks, empty names and duplicate IDs', () => {
+      const p = withAudio();
+      p.stages.push(S.createStage({ id: 'S1', name: 'A', musicAssetId: 'IMG-1' }), S.createStage({ id: 'S1', name: '', ambienceAssetId: 'NOPE' }));
+      const e = S.validateProject(p).errors.join(' | ');
+      H.includes(e, 'not an audio asset'); H.includes(e, 'not in the Asset Registry'); H.includes(e, 'Stage name is required'); H.includes(e, 'Duplicate stage ID S1');
+    });
+    it('stageAudio resolves only audio assets', () => {
+      const p = withAudio();
+      p.stages.push(S.createStage({ name: 'A', musicAssetId: 'AUD-1', ambienceAssetId: 'IMG-1' }));
+      const r = S.stageAudio(p)[0]; H.eq(r.music.id, 'AUD-1'); H.eq(r.ambience, null);
+    });
+    it('both sample profiles list their stages, with no invented tracks', () => {
+      ['anime-war-arcade', 'kodama-last-branch'].forEach((id) => {
+        const p = A.presets.create(id);
+        H.assert(p.stages.length >= 6, id); H.assert(p.stages.every((s) => !s.musicAssetId && !s.ambienceAssetId), id + ' tracks');
+      });
+    });
+    it('stages survive export and import', () => {
+      const p = withAudio(); p.stages.push(S.createStage({ id: 'S9', name: 'Orbit', musicAssetId: 'AUD-1', loop: false }));
+      const r = S.importProject(S.exportProject(p), []);
+      H.eq(r.project.stages[0].musicAssetId, 'AUD-1'); H.eq(r.project.stages[0].loop, false);
+    });
+  });
+
   H.describe('Export & import', (it) => {
     it('round-trips a project through JSON', () => {
       const p = A.presets.create('anime-war-arcade');
