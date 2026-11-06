@@ -9,7 +9,7 @@ npm run test:e2e    # Playwright/Chromium end-to-end (skips if Playwright is not
 In the app: **QA & Diagnostics → Run automated tests** runs the same unit and integration specs in the browser against an isolated in-memory store. The page also has a manual checklist.
 
 ## Latest results
-`npm test`: **96 passed, 0 failed**
+`npm test`: **97 passed, 0 failed**
 
 | Suite | Tests | Covers |
 |---|---|---|
@@ -25,7 +25,7 @@ In the app: **QA & Diagnostics → Run automated tests** runs the same unit and 
 | Meshy 3D Studio | 6 | polygon budgets, all 10 steps + checklists, 600-character prompt limit, multi-view references, custom targets, static props |
 | Gameplay engineering | 4 | requirement categories, intercept code, genre defaults, preservation constraints, per-tool framing |
 | Existing project safety | 4 | full package, no-manifest honesty, audit-only, non-git backups |
-| Android packaging | 6 | Capacitor commands, Godot/Unity native plans, WebGL checks, studio target, ID/version validation |
+| Android packaging | 7 | Capacitor commands, Godot/Unity native plans, WebGL checks, studio target, ID/version validation |
 | Compiler actions | 6 | phase splitting, expand, refine, correct (destructive/secret/false-analysis/MJ syntax/APK claims), model-claim lint, `--ar` fix |
 | Model routing | 12 | LOCAL, backend-unavailable fallback, ECONOMY, INTELLIGENT tiers, MAX → Opus 5.5, routine non-escalation, missing Opus, manual selection, cost, system prompt, unreachable status |
 | Server (optional backend) | 14 | static serving, traversal blocking, no-credential behaviour, key never returned, request parameters (adaptive thinking, effort, refusal fallback), allowlist, CORS, image validation, rate limit, passphrase, refusal → 422, upstream error mapping |

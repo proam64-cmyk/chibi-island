@@ -200,6 +200,12 @@
       ['npx cap add android', 'npx cap sync android', 'assembleDebug', 'assembleRelease', 'bundleRelease', 'apksigner verify', 'Play Store readiness checklist', 'Touch controls'].forEach((k) => H.includes(t, k));
       H.includes(t, 'A web browser alone cannot compile an APK or AAB');
       H.includes(t, 'AAB = Google Play upload format');
+      H.includes(t, 'for Android: debug APK (testing), signed release APK (direct install), Android App Bundle (Play Store).');
+      H.excludes(t, 'only,', 'mission lists outputs without the option label wording');
+    });
+    it('a single selected output is named on its own', () => {
+      const t = gen('android', awa(), { appId: 'com.kirin.animewar', buildKind: 'aab' });
+      H.includes(t, 'for Android: Android App Bundle (Play Store).');
     });
     it('Godot projects get a native export plan instead of Capacitor', () => {
       const t = gen('android', kdm(), { appId: 'com.forest.kodama' });
