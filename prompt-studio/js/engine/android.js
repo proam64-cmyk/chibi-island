@@ -20,6 +20,9 @@
     { id: 'aab', label: 'Android App Bundle (Play Store)' },
   ];
 
+  /** Names of the individual build outputs (the option labels above describe selections, e.g. "Debug APK only"). */
+  D.OUTPUT_NAMES = { 'debug-apk': 'debug APK (testing)', 'release-apk': 'signed release APK (direct install)', aab: 'Android App Bundle (Play Store)' };
+
   D.validateAppId = function (id) {
     const errs = [];
     if (!/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(id || '')) errs.push('Application ID must look like com.studio.game (at least two dot-separated segments, each starting with a letter).');
@@ -57,7 +60,7 @@
     const sec = { role: [], mission: [], context: [], references: [], constraints: [], specs: [], instructions: [], outputs: [], validation: [], acceptance: [], recovery: [], deliverables: [], questions: [] };
 
     sec.role.push('Android build & release engineer experienced with ' + (eng.family === 'html5' ? 'Capacitor, Gradle and Android WebView' : eng.label + ' Android export, Gradle and Google Play') + '.');
-    sec.mission.push('Package ' + (target === 'studio' ? 'the Anime Game Prompt Studio web app' : '"' + o.appName + '" (' + eng.label + ')') + ' for Android: ' + kinds.map((k) => D.BUILD_KINDS.find((b) => b.id === k).label).join(', ') + '.');
+    sec.mission.push('Package ' + (target === 'studio' ? 'the Anime Game Prompt Studio web app' : '"' + o.appName + '" (' + eng.label + ')') + ' for Android: ' + kinds.map((k) => D.OUTPUT_NAMES[k]).join(', ') + '.');
     sec.mission.push('Compilation happens in a configured Android build environment (Android Studio / Android SDK + JDK, locally or in CI). A web browser alone cannot compile an APK or AAB; this document is the plan and the commands.');
     sec.context.push('App name: ' + o.appName + '; application ID: ' + o.appId + '; versionName ' + o.versionName + ', versionCode ' + vc + '.');
     sec.context.push('Engine/technology: ' + eng.label + ' (' + (eng.family === 'html5' ? 'HTML5 → Capacitor wrapper' : 'engine-native Android export; Capacitor is not appropriate') + ').');
