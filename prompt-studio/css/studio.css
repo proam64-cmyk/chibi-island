@@ -124,6 +124,7 @@ fieldset.field { border: 1px solid var(--line); border-radius: 12px; padding: 10
 .chip.block { display: flex; border-radius: 10px; margin-bottom: 6px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 14px; }
 .form-grid.wide { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+textarea.autogrow { resize: none; overflow: hidden; min-height: var(--tap); }
 
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .74rem; font-weight: 600; border: 1px solid var(--line); background: #0d1020; color: var(--muted); white-space: nowrap; }
 .badge.ok, .badge.approved { color: var(--ok); border-color: #3ddc9766; }
