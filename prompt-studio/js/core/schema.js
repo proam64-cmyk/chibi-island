@@ -133,6 +133,7 @@
       characters: [],
       assets: [],
       history: [],
+      stages: [],
       workbench: {},
     };
     return S.normalizeProject(Object.assign(p, overrides || {}));
@@ -162,6 +163,27 @@
       },
       overrides || {}
     );
+  };
+
+  /** Game stages/levels/screens, each with an optional music and ambience track from the Asset Registry. */
+  S.STAGE_KINDS = [
+    { id: 'stage', label: 'Stage / level' },
+    { id: 'boss', label: 'Boss fight' },
+    { id: 'menu', label: 'Menu / title' },
+    { id: 'story', label: 'Story scene' },
+    { id: 'hub', label: 'Hub / map' },
+    { id: 'other', label: 'Other' },
+  ];
+  S.createStage = function (overrides) {
+    return Object.assign({ id: U.uid('STG'), name: '', kind: 'stage', musicAssetId: '', ambienceAssetId: '', loop: true, notes: '' }, overrides || {});
+  };
+  S.normalizeStage = function (s) {
+    const out = Object.assign(S.createStage(), s || {});
+    out.id = str(out.id) || U.uid('STG');
+    ['name', 'musicAssetId', 'ambienceAssetId', 'notes'].forEach((k) => (out[k] = str(out[k])));
+    if (!S.STAGE_KINDS.some((k) => k.id === out.kind)) out.kind = 'other';
+    out.loop = out.loop !== false;
+    return out;
   };
 
   S.createAsset = function (overrides) {
@@ -232,6 +254,7 @@
     out.characters = (Array.isArray(out.characters) ? out.characters : []).map(S.normalizeCharacter);
     out.assets = (Array.isArray(out.assets) ? out.assets : []).map(S.normalizeAsset);
     out.history = (Array.isArray(out.history) ? out.history : []).filter((h) => h && typeof h.text === 'string').slice(-S.HISTORY_LIMIT);
+    out.stages = (Array.isArray(out.stages) ? out.stages : []).filter((s) => s && typeof s === 'object').map(S.normalizeStage);
     out.workbench = out.workbench && typeof out.workbench === 'object' ? out.workbench : {};
     out.createdAt = str(out.createdAt) || U.now();
     out.updatedAt = str(out.updatedAt) || U.now();
@@ -293,9 +316,37 @@
       aids.add(a.id);
       S.validateAsset(a, p).errors.forEach((e) => errors.push((a.name || a.id) + ': ' + e));
     });
+    const sids = new Set();
+    (p.stages || []).forEach((s, i) => {
+      const label = s.name || 'Stage ' + (i + 1);
+      if (sids.has(s.id)) errors.push('Duplicate stage ID ' + s.id);
+      sids.add(s.id);
+      S.validateStage(s, p).errors.forEach((e) => errors.push(label + ': ' + e));
+      S.validateStage(s, p).warnings.forEach((w) => warnings.push(label + ': ' + w));
+    });
     if (p.mode === 'existing' && !U.has(p.existing && p.existing.workingSystems))
       warnings.push('Existing project: list the systems that already work so they can be preserved.');
     return { errors: U.uniq(errors), warnings };
+  };
+
+  /** A stage's music/ambience must point at an existing asset whose role is "audio". */
+  S.validateStage = function (s, project) {
+    const errors = [], warnings = [];
+    if (!U.has(s.name)) errors.push('Stage name is required.');
+    [['musicAssetId', 'Music track'], ['ambienceAssetId', 'Ambience track']].forEach(([k, label]) => {
+      if (!s[k]) return;
+      const a = project && (project.assets || []).find((x) => x.id === s[k]);
+      if (!a) errors.push(label + ' ' + s[k] + ' is not in the Asset Registry.');
+      else if (a.role !== 'audio') errors.push(label + ' ' + s[k] + ' is not an audio asset (role: ' + a.role + ').');
+    });
+    if (!s.musicAssetId) warnings.push('No music track assigned yet.');
+    return { errors, warnings };
+  };
+
+  /** Stage → resolved music/ambience assets, for prompts and the UI. */
+  S.stageAudio = function (project) {
+    const find = (id) => (id ? (project.assets || []).find((a) => a.id === id && a.role === 'audio') || null : null);
+    return (project.stages || []).map((stage) => ({ stage, music: find(stage.musicAssetId), ambience: find(stage.ambienceAssetId) }));
   };
 
   /** Keys that must never be persisted or exported. */

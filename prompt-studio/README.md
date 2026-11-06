@@ -34,8 +34,8 @@ Requirements: Node.js 18 or newer for the server and tests. The app itself is pl
 ### Tests
 ```bash
 cd prompt-studio
-npm test           # 101 unit, integration and server tests (Node, no network, no key)
-npm run test:e2e   # 17 browser end-to-end checks (needs Playwright + Chromium installed)
+npm test           # 110 unit, integration and server tests (Node, no network, no key)
+npm run test:e2e   # 19 browser end-to-end checks (needs Playwright + Chromium installed)
 ```
 The same unit suite also runs inside the app: **QA & Diagnostics → Run automated tests**. It uses an isolated in-memory store.
 
@@ -46,7 +46,7 @@ The same unit suite also runs inside the app: **QA & Diagnostics → Run automat
 | Area | What you get |
 |---|---|
 | **Projects** | *Create new game* or *Improve existing game*; samples; duplicate; JSON import/export (single project or all projects); autosave. |
-| **Game Profile** | Title, story, genre and subgenres, 2D/2.5D/3D, platforms, engine, FPS, orientation, combat, abilities, world, progression, art, animation, saves, controls, difficulty and audio, with validation. |
+| **Game Profile** | Title, story, genre and subgenres, 2D/2.5D/3D, platforms, engine, FPS, orientation, combat, abilities, world, progression, art, animation, saves, controls, difficulty and audio, with validation. **Stages & audio**: list every stage, level or screen and assign its music and ambience from the audio files in the Asset Registry; the gameplay *Audio integration* prompt then includes a per-stage audio map with asset IDs and file names. |
 | **Existing Project** | Source manifest (you can read **file paths only** from a folder), working systems, requested changes, known bugs, art references, constraints and version control. |
 | **Characters** | A permanent continuity spec: ID, age category, proportions, face, hair, eyes, costume, weapons, palette (validated hex), allowed transformations, art style, linked reference assets and forbidden changes. A *continuity lock* built from this spec is reused in every prompt. |
 | **Asset Registry** | Asset ID, name, role, source tool, version, format, target game, dependencies, approval status, character link, workflow stage and an optional public URL. File import records metadata and a small image preview. Contents are **not analysed** unless you explicitly run AI image analysis. |

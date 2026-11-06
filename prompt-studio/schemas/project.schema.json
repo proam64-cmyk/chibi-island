@@ -37,6 +37,19 @@
             "difficulty": { "type": "string" }, "audio": { "type": "string" }, "monetization": { "type": "string" }, "notes": { "type": "string" }
           }
         },
+        "stages": {
+          "type": "array",
+          "description": "Stages/levels/screens with their audio. Track IDs must reference assets whose role is 'audio'.",
+          "items": {
+            "type": "object", "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "string" }, "name": { "type": "string", "minLength": 1 },
+              "kind": { "enum": ["stage", "boss", "menu", "story", "hub", "other"] },
+              "musicAssetId": { "type": "string" }, "ambienceAssetId": { "type": "string" },
+              "loop": { "type": "boolean" }, "notes": { "type": "string" }
+            }
+          }
+        },
         "existing": {
           "type": "object",
           "properties": {

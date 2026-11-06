@@ -125,6 +125,21 @@ const assert = (c, m) => { if (!c) throw new Error(m || 'assertion failed'); };
     assert((await page.textContent('#modal')).includes('Image analysis unavailable'));
     await page.keyboard.press('Escape');
   });
+  await step('stage audio: import a music file, assign it to a stage, see it in the audio prompt', async () => {
+    await page.setInputFiles('input[data-action-change="importFiles"]', { name: 'orbit_theme.mp3', mimeType: 'audio/mpeg', buffer: Buffer.from('ID3 stand-in') });
+    await page.waitForSelector('table.assets td:has-text("audio")');
+    await nav('Game Profile');
+    await page.waitForSelector('#stages');
+    const audioId = await page.$eval('#f-sg-1-musicAssetId', (s) => Array.from(s.options).find((o) => o.textContent.includes('orbit_theme.mp3')).value);
+    await page.selectOption('#f-sg-1-musicAssetId', audioId);
+    await page.waitForSelector('#stages b:has-text("1 / 7")');
+    await nav('Gameplay Engineering');
+    await page.check('[data-bind="w:gameplay.subsystems"][value="audio"]');
+    await page.click('.toolbar button[data-action="wbGenerate"]');
+    const t = await editor();
+    assert(t.includes('Stage 1 — Tsukuyomi Orbit [AWA-STG-01') && t.includes('(file orbit_theme.mp3, MP3)'), 'audio map in prompt');
+    await page.uncheck('[data-bind="w:gameplay.subsystems"][value="audio"]');
+  });
   await step('export and re-import the project JSON', async () => {
     await nav('Projects');
     const [dl] = await Promise.all([page.waitForEvent('download'), page.click('.project-card button[data-action="exportProject"]')]);

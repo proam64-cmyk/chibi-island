@@ -18,6 +18,7 @@ const serverTests = require('./server.test.js');
   chk('character age categories match', () => same(schema('character.schema.json').properties.ageCategory.enum, A.schema.AGE_CATEGORIES.map((x) => x.id), 'age'));
   chk('asset roles and approval states match', () => { const s = schema('asset.schema.json').properties; same(s.role.enum, A.schema.ASSET_ROLES, 'roles'); same(s.approval.enum, A.schema.APPROVAL, 'approval'); same(s.workflowStage.enum.filter(Boolean), A.schema.WORKFLOW_STAGES.map((x) => x.id), 'stages'); });
   chk('genres and render modes match', () => { const s = schema('project.schema.json').properties.project.properties.profile.properties; same(s.genre.enum, A.schema.GENRES.map((g) => g.id), 'genres'); same(s.renderMode.enum, A.schema.RENDER_MODES, 'render'); });
+  chk('stage kinds match', () => same(schema('project.schema.json').properties.project.properties.stages.items.properties.kind.enum, A.schema.STAGE_KINDS.map((k) => k.id), 'stage kinds'));
   chk('exported presets carry the declared format and version', () => { const e = JSON.parse(A.schema.exportProject(A.presets.create('kodama-last-branch'))); if (e.format !== schema('project.schema.json').properties.format.const || e.schemaVersion !== 1) throw new Error('format'); });
   const all = res.results.concat(srv, sync);
   let suite = '';

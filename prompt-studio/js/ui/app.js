@@ -198,7 +198,11 @@
   function viewProfile() {
     const p = st.project, pf = p.profile;
     const v = S.validateProject(p);
-    return sampleBanner() + '<section class="panel"><h1>' + esc(t('Game Profile')) + '</h1>' + msgList(v.errors, 'error') + msgList(v.warnings, 'warn') +
+    // Stage messages are shown on each stage card below, not repeated at the top.
+    const stageMsgs = new Set();
+    p.stages.forEach((s, i) => { const r = S.validateStage(s, p), label = s.name || 'Stage ' + (i + 1); r.errors.concat(r.warnings).forEach((m) => stageMsgs.add(label + ': ' + m)); });
+    const top = (arr) => arr.filter((m) => !stageMsgs.has(m));
+    return sampleBanner() + '<section class="panel"><h1>' + esc(t('Game Profile')) + '</h1>' + msgList(top(v.errors), 'error') + msgList(top(v.warnings), 'warn') +
       '<div class="form-grid">' +
       fld({ label: 'Project name', bind: 'p:name', value: p.name }) +
       fld({ label: 'Project mode', bind: 'p:mode', type: 'select', value: p.mode, options: [['new', 'Create new game'], ['existing', 'Improve existing game']], rerender: true }) +
@@ -214,7 +218,33 @@
       '<div class="form-grid wide">' +
       [['story', 'Story'], ['combat', 'Combat mechanics'], ['abilities', 'Character abilities'], ['world', 'World design'], ['progression', 'Progression'], ['artDirection', 'Art direction'], ['animation', 'Animation requirements'], ['saveSystem', 'Save system'], ['controls', 'Controls'], ['difficulty', 'Difficulty'], ['audio', 'Audio'], ['notes', 'Notes']]
         .map(([k, l]) => fld({ label: l, bind: 'p:profile.' + k, type: 'textarea', value: pf[k], rows: k === 'story' ? 5 : 3 })).join('') +
-      '</div><p class="muted small">' + esc(t('Changes are saved automatically.')) + '</p></section>';
+      '</div><p class="muted small">' + esc(t('Changes are saved automatically.')) + '</p></section>' + stagesSection();
+  }
+
+  /** Stages & audio: every stage/level/screen gets a music and ambience track from the audio assets in the registry. */
+  function stagesSection() {
+    const p = st.project;
+    const audio = p.assets.filter((a) => a.role === 'audio');
+    const trackOpts = [['', '— none —']].concat(audio.map((a) => [a.id, a.name + (a.fileName ? ' · ' + a.fileName : '') + ' · ' + a.approval]));
+    const assigned = p.stages.filter((s) => s.musicAssetId).length;
+    const cards = p.stages.map((s, i) => {
+      const r = S.validateStage(s, p);
+      return '<fieldset class="panel inner stage-card"><legend>' + esc(s.name || t('Stage') + ' ' + (i + 1)) + ' <small class="muted">' + esc(s.id) + '</small></legend>' +
+        msgList(r.errors, 'error') + (r.warnings.length ? '<p class="warn-text small">' + esc(r.warnings.map(t).join(' ')) + '</p>' : '') +
+        '<div class="form-grid">' +
+        fld({ label: 'Stage name', bind: 'sg:' + i + '.name', value: s.name }) +
+        fld({ label: 'Type', bind: 'sg:' + i + '.kind', type: 'select', value: s.kind, options: S.STAGE_KINDS.map((k) => [k.id, k.label]) }) +
+        fld({ label: 'Music track', bind: 'sg:' + i + '.musicAssetId', type: 'select', value: s.musicAssetId, options: trackOpts, rerender: true }) +
+        fld({ label: 'Ambience track', bind: 'sg:' + i + '.ambienceAssetId', type: 'select', value: s.ambienceAssetId, options: trackOpts, rerender: true }) +
+        '</div>' + fld({ label: 'Loop the music', bind: 'sg:' + i + '.loop', type: 'checkbox', value: s.loop }) +
+        fld({ label: 'Audio notes (mood, cues, transitions)', bind: 'sg:' + i + '.notes', type: 'textarea', rows: 1, cls: 'autogrow', value: s.notes }) +
+        '<div class="row">' + btn('Remove stage', 'removeStage', { arg: i, cls: 'danger small' }) + '</div></fieldset>';
+    }).join('');
+    return '<section class="panel" id="stages"><h2>' + esc(t('Stages & audio')) + '</h2>' +
+      '<p class="muted small">' + esc(t('List every stage, level or screen and pick its music and ambience from the audio files in the Asset Registry. Gameplay prompts (Audio integration) then tell the coding assistant exactly which track plays where.')) + '</p>' +
+      (p.stages.length ? '<p class="small">' + esc(t('Music assigned')) + ': <b>' + assigned + ' / ' + p.stages.length + '</b></p>' : '') +
+      (audio.length ? '' : '<p class="banner">' + esc(t('No audio assets yet. Import your music files in the Asset Registry (they get the role "audio"), then assign them here.')) + ' ' + btn('Open Asset Registry', 'go', { arg: 'assets' }) + '</p>') +
+      cards + '<div class="row">' + btn('+ Add stage', 'addStage', { cls: 'primary' }) + '</div></section>';
   }
 
   /* ---------------- Existing ---------------- */
@@ -515,8 +545,15 @@
       p.assets = p.assets.filter((a) => a.id !== id);
       p.assets.forEach((a) => { a.dependencies = a.dependencies.filter((d) => d !== id); });
       p.characters.forEach((c) => { c.referenceAssetIds = c.referenceAssetIds.filter((d) => d !== id); });
+      p.stages.forEach((s) => { if (s.musicAssetId === id) s.musicAssetId = ''; if (s.ambienceAssetId === id) s.ambienceAssetId = ''; });
       closeModal(); touch(); render();
     },
+    addStage() {
+      const s = S.createStage({ name: t('Stage') + ' ' + (st.project.stages.length + 1) });
+      st.project.stages.push(s); touch(); render();
+      const f = document.getElementById('f-sg-' + (st.project.stages.length - 1) + '-name'); if (f) { f.focus(); f.select(); }
+    },
+    removeStage(el) { st.project.stages.splice(+el.dataset.arg, 1); touch(); render(); const sec = $('#stages'); if (sec) sec.scrollIntoView({ block: 'start' }); },
     analyzeAsset(el) { aiAnalyze(el.dataset.arg); },
     async doAnalyze(el) { await runAnalyze(el.dataset.arg); },
 
@@ -885,6 +922,13 @@
       case 'f': st.assetFilter[path] = val; if (isChange) render(); break;
       case 'hf': st.histFilter = val; if (isChange) render(); break;
       case 'tc': st.tplChar = val; break;
+      case 'sg': {
+        const [i, k] = path.split('.');
+        const s = p.stages[+i]; if (!s) return;
+        s[k] = val; touch();
+        if (isChange && (el.dataset.rerender || k === 'name')) render();
+        break;
+      }
       case 'qm': st.settings.qaManual[path] = val; saveSettings(); break;
       default: break;
     }
