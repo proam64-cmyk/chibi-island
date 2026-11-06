@@ -158,6 +158,16 @@ const assert = (c, m) => { if (!c) throw new Error(m || 'assertion failed'); };
     }
     await mp.click('.nav-toggle');
     assert(await mp.isVisible('#sidebar.open'));
+    await mp.waitForTimeout(300);
+    const dim = await mp.$eval('#navBackdrop', (e) => getComputedStyle(e).opacity);
+    assert(dim === '1', 'backdrop dims the page when the menu is open (opacity ' + dim + ')');
+    await mp.mouse.click(340, 400); // tap the dimmed area, right of the drawer
+    await mp.waitForTimeout(300);
+    assert(!(await mp.$('#sidebar.open')), 'tapping the backdrop closes the menu');
+    await mp.click('.nav-toggle');
+    await mp.keyboard.press('Escape');
+    assert(!(await mp.$('#sidebar.open')), 'Escape closes the menu');
+    await mp.click('.nav-toggle');
     const small = await mp.$$eval('.toolbar .btn, .nav-item', (els) => els.filter((e) => e.offsetParent && e.getBoundingClientRect().height < 34).length);
     assert(small === 0, small + ' touch targets under 34px');
     if (shotDir) { await mp.evaluate(() => { window.AGPS.app.view = 'wb:meshy'; window.AGPS.app.navOpen = false; window.AGPS.ui.render(); }); await mp.click('button[data-action="wbGenerate"]'); await mp.screenshot({ path: path.join(shotDir, '04-mobile-meshy.png') }); }

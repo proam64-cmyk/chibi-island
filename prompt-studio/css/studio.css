@@ -60,6 +60,7 @@ code, pre, .editor { font-family: var(--mono); }
 .pill.off { color: var(--muted); }
 .topbar select.lang { width: auto; min-height: 34px; padding: 4px 8px; }
 .nav-toggle { display: none; }
+.nav-backdrop { display: none; }
 
 /* layout */
 .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: calc(100vh - 56px); }
@@ -223,6 +224,9 @@ pre.diff .same { color: #8e95b8; }
   .layout { grid-template-columns: minmax(0, 1fr); }
   .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: min(300px, 85vw); height: 100vh; z-index: 50; transform: translateX(-105%); transition: transform .2s ease; background: #0d1020; padding-top: max(64px, env(safe-area-inset-top)); box-shadow: 20px 0 50px #000a; }
   .sidebar.open { transform: none; }
+  .nav-backdrop { display: block; position: fixed; inset: 0; z-index: 45; background: rgba(4, 5, 12, .62); backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+  .nav-backdrop.show { opacity: 1; pointer-events: auto; }
+  body.nav-open { overflow: hidden; }
   .split { grid-template-columns: minmax(0, 1fr); }
   .current-project .cp-label { display: none; }
   .main { padding: 14px 16px 64px; }

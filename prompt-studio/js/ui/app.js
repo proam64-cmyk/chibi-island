@@ -129,6 +129,8 @@
       '<button class="nav-item' + (st.view === id ? ' active' : '') + '" data-action="go" data-arg="' + id + '"' + (st.view === id ? ' aria-current="page"' : '') + '><span aria-hidden="true">' + ic + '</span> ' + esc(label) + '</button>').join('') + '</div>').join('') +
       '<p class="storage-note">' + esc(t('Storage')) + ': ' + (St.backend && St.backend.persistent ? 'IndexedDB' : t('memory only (not persistent)')) + '</p>';
     $('#sidebar').classList.toggle('open', st.navOpen);
+    $('#navBackdrop').classList.toggle('show', st.navOpen);
+    document.body.classList.toggle('nav-open', st.navOpen);
     document.documentElement.lang = st.settings.lang;
     paintSave();
   }
@@ -426,6 +428,7 @@
 
   const ACTIONS = {
     closeModal, toggleNav() { st.navOpen = !st.navOpen; renderShell(); },
+    closeNav() { if (st.navOpen) { st.navOpen = false; renderShell(); } },
     go(el) { if (!$('#modal').hidden) closeModal(); st.view = el.dataset.arg; st.navOpen = false; render(); $('#main').focus(); window.scrollTo(0, 0); },
 
     async newProject(el) {
@@ -960,6 +963,7 @@
     document.addEventListener('change', (e) => { if (e.target.type === 'file') onFileChange(e); else onInput(e); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !$('#modal').hidden) closeModal();
+      else if (e.key === 'Escape' && st.navOpen) { ACTIONS.closeNav(); const b = $('.nav-toggle'); if (b) b.focus(); }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && st.view.startsWith('wb:')) { e.preventDefault(); generate(st.view.slice(3)); }
     });
     window.addEventListener('beforeunload', () => { if (st.saveState === 'unsaved') scheduleSave.flush(); });
