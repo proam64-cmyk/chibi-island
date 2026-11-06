@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agps.local/schemas/project.schema.json",
+  "title": "Anime Game Prompt Studio project export",
+  "type": "object",
+  "required": ["format", "schemaVersion", "project"],
+  "properties": {
+    "format": { "const": "agps-project" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "exportedAt": { "type": "string" },
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "mode", "profile", "characters", "assets"],
+      "properties": {
+        "schemaVersion": { "type": "integer" },
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "mode": { "enum": ["new", "existing"] },
+        "isSample": { "type": "boolean" },
+        "sampleNotice": { "type": "string" },
+        "presetId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "profile": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" }, "logline": { "type": "string" }, "story": { "type": "string" },
+            "genre": { "enum": ["shmup", "bullet-hell", "action-rpg", "tactical-rpg", "platformer", "fighting", "arcade", "exploration", "hybrid"] },
+            "subgenres": { "type": "array", "items": { "type": "string" } },
+            "renderMode": { "enum": ["2D", "2.5D", "3D"] },
+            "platforms": { "type": "array", "items": { "type": "string" } },
+            "engine": { "type": "string" },
+            "targetFps": { "type": "integer", "minimum": 15, "maximum": 240 },
+            "orientation": { "enum": ["landscape", "portrait", "any"] },
+            "combat": { "type": "string" }, "abilities": { "type": "string" }, "world": { "type": "string" }, "progression": { "type": "string" },
+            "artDirection": { "type": "string" }, "animation": { "type": "string" }, "saveSystem": { "type": "string" }, "controls": { "type": "string" },
+            "difficulty": { "type": "string" }, "audio": { "type": "string" }, "monetization": { "type": "string" }, "notes": { "type": "string" }
+          }
+        },
+        "existing": {
+          "type": "object",
+          "properties": {
+            "sourceManifest": { "type": "string", "description": "File paths only; contents are never stored." },
+            "workingSystems": { "type": "string" }, "requestedChanges": { "type": "string" }, "knownBugs": { "type": "string" },
+            "artReferences": { "type": "string" }, "constraints": { "type": "string" },
+            "versionControl": { "enum": ["git", "none"] }, "currentVersion": { "type": "string" }
+          }
+        },
+        "characters": { "type": "array", "items": { "$ref": "character.schema.json" } },
+        "assets": { "type": "array", "items": { "$ref": "asset.schema.json" } },
+        "history": {
+          "type": "array", "maxItems": 300,
+          "items": {
+            "type": "object", "required": ["id", "text", "category", "action"],
+            "properties": {
+              "id": { "type": "string" }, "createdAt": { "type": "string" }, "category": { "type": "string" },
+              "action": { "enum": ["generate", "expand", "refine", "correct", "ai", "manual", "template"] },
+              "quality": { "type": "string" }, "tool": { "type": "string" }, "options": { "type": "object" }, "parentId": { "type": ["string", "null"] },
+              "title": { "type": "string" }, "text": { "type": "string" },
+              "model": { "type": "object", "description": "Present only for action 'ai': requested model, model reported by the API, usage." }
+            }
+          }
+        },
+        "workbench": { "type": "object", "description": "Last options per workbench." }
+      }
+    }
+  }
+}

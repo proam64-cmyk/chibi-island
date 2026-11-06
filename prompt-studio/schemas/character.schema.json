@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agps.local/schemas/character.schema.json",
+  "title": "Character continuity specification",
+  "type": "object",
+  "required": ["id", "name"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,40}$", "description": "Permanent unique ID reused in every prompt and asset." },
+    "name": { "type": "string", "minLength": 1 },
+    "role": { "type": "string" },
+    "ageCategory": { "enum": ["adult", "young-adult", "middle-aged", "elder", "teen", "child", "non-human", "ageless-spirit"], "description": "teen/child automatically add non-sexualisation constraints." },
+    "bodyProportions": { "type": "string" },
+    "face": { "type": "string" },
+    "hairstyle": { "type": "string" },
+    "eyeColor": { "type": "string" },
+    "costume": { "type": "string" },
+    "weapons": { "type": "string" },
+    "abilities": { "type": "string" },
+    "palette": { "type": "array", "items": { "type": "string", "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$" } },
+    "allowedTransformations": { "type": "string" },
+    "artStyle": { "type": "string" },
+    "personality": { "type": "string" },
+    "forbiddenChanges": { "type": "string" },
+    "referenceAssetIds": { "type": "array", "items": { "type": "string" }, "description": "Asset IDs from the registry. Registration does not imply the image was analysed." },
+    "notes": { "type": "string" }
+  }
+}

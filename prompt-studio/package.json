@@ -1,0 +1,14 @@
+{
+  "name": "anime-game-prompt-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline-first prompt production studio for solo anime game developers.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node tests/run-node.js",
+    "test:e2e": "node tests/e2e.js",
+    "android:prepare": "node android/scripts/prepare-www.mjs"
+  },
+  "engines": { "node": ">=18" }
+}
